@@ -101,19 +101,31 @@ func partTwo(content string) {
 		}
 	}
 
-	oxygenRatingBin := deriveBinNums("oxygen", binaryNumbers, sequences, 0)
-	oxygenRating, _ := strconv.ParseInt(oxygenRatingBin, 2, 64)
-	co2RatingBin := deriveBinNums("co2", binaryNumbers, sequences, 0)
-	co2Rating, _ := strconv.ParseInt(co2RatingBin, 2, 64)
+	oxygenChan := make(chan int64)
+	co2Chan := make(chan int64)
+	go func() {
+		oxygenRatingBin := deriveBinNums("oxygen", binaryNumbers, sequences, 0)
+		oxygenRating, _ := strconv.ParseInt(oxygenRatingBin, 2, 64)
+		oxygenChan <- oxygenRating
+	}()
+
+	go func() {
+		co2RatingBin := deriveBinNums("co2", binaryNumbers, sequences, 0)
+		co2Rating, _ := strconv.ParseInt(co2RatingBin, 2, 64)
+		co2Chan <- co2Rating
+	}()
+
+	oxygen := <-oxygenChan
+	co2 := <-co2Chan
 
 	fmt.Println("Oxygen rating:")
-	fmt.Println(oxygenRating)
+	fmt.Println(oxygen)
 
 	fmt.Println("CO2 rating:")
-	fmt.Println(co2Rating)
+	fmt.Println(co2)
 
 	fmt.Println("Final result:")
-	fmt.Println(oxygenRating * co2Rating)
+	fmt.Println(oxygen * co2)
 }
 
 func main() {
